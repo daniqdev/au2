@@ -14,10 +14,12 @@ console.info("Startup ⚡️", `Au2 Script v${scriptVersion} initialized`);
 console.info(
   "Startup ⚡️",
   `Delay is set to somewhere between ${new Date(
-    minDelayInMilliseconds
-  ).getMinutes()} → ${new Date(maxDelayInMilliseconds).getMinutes()} minutes`
+    minRoomSwitcherDelayInMilliseconds
+  ).getMinutes()} → ${new Date(
+    maxRoomSwitcherDelayInMilliseconds
+  ).getMinutes()} minutes`
 );
-console.info("Startup ⚡️", `Debug mode enabled: ${isDebug}`);
+console.info("Startup ⚡️", `Debug mode enabled: ${isDebugModeEnabled}`);
 console.info("Startup ⚡️", `Room switcher enabled: ${isRoomSwitcherEnabled}`);
 
 /*
@@ -53,7 +55,7 @@ hour and token and recognise said message.
 */
 socket.onmessage = function (e) {
   var data = e.data;
-  if (isDebug) {
+  if (isDebugModeEnabled) {
     console.debug("Debug 👷", data);
   }
 
@@ -70,12 +72,3 @@ socket.onmessage = function (e) {
     return onmessage(e);
   }
 };
-
-/*
-The following code will try to reconnect once WebSocket disconnects.
-*/
-socket.on("disconnect", (reason) => {
-  if (reason === "io server disconnect") {
-    socket.connect();
-  }
-});
