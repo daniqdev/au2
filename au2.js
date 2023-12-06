@@ -37,15 +37,12 @@ function roomSwitcher() {
   if (currentRoomId >= 157) currentRoomId = 153;
 }
 
-if (isRoomSwitcherEnabled) {
-  setInterval(
-    () => {
-      roomSwitcher();
-    },
-    minRoomSwitcherDelayInMilliseconds,
-    maxRoomSwitcherDelayInMilliseconds
-  );
-}
+/*
+The following code will detect whenever WebSocket disconnects.
+*/
+socket.onclose = (e) => {
+  console.warn("Disconnected 🔥", e);
+};
 
 /*
 The following code will run whenever a message is received via WebSocket.
@@ -53,7 +50,7 @@ If debug mode is enabled (isDebug), we print the incoming message to the Console
 Checks every incoming message for recieved hours, then extracts the current 
 hour and token and recognise said message.
 */
-socket.onmessage = function (e) {
+socket.onmessage = (e) => {
   var data = e.data;
   if (isDebugModeEnabled) {
     console.debug("Debug 👷", data);
@@ -69,6 +66,16 @@ socket.onmessage = function (e) {
       console.info("Received hour 🎉", hour);
     }, Math.floor(Math.random() * 29000) + 1000);
   } else {
-    return onmessage(e);
+    onmessage(e);
   }
 };
+
+if (isRoomSwitcherEnabled) {
+  setInterval(
+    () => {
+      roomSwitcher();
+    },
+    minRoomSwitcherDelayInMilliseconds,
+    maxRoomSwitcherDelayInMilliseconds
+  );
+}
