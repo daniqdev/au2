@@ -1,7 +1,7 @@
 const scriptVersion = "1.10";
 
-const minRoomSwitcherDelayInMilliseconds = 60000 * 3;
-const maxRoomSwitcherDelayInMilliseconds = 60000 * 6;
+const minRoomSwitcherDelayInMilliseconds = 30000 * 1;
+const maxRoomSwitcherDelayInMilliseconds = 60000 * 1;
 
 const isDebugModeEnabled = true;
 const isRoomSwitcherEnabled = true;
@@ -25,6 +25,7 @@ The following code will detect whenever WebSocket disconnects.
 */
 window.socket.onclose = (e) => {
   console.warn("Disconnected 🔥", e);
+  window.location.reload();
 };
 
 /*
@@ -33,7 +34,7 @@ If debug mode is enabled (isDebug), we print the incoming message to the Console
 Checks every incoming message for recieved hours, then extracts the current 
 hour and token and recognise said message.
 */
-window.socket.onmessage = (e) => {
+socket.addEventListener("message", function (e) {
   var data = e.data;
   if (isDebugModeEnabled) {
     console.debug("Debug 👷", data);
@@ -49,7 +50,7 @@ window.socket.onmessage = (e) => {
       console.info("Received hour 🎉", hour);
     }, Math.floor(Math.random() * 29000) + 1000);
   }
-};
+});
 
 /*
 The following code will loop through room '153' -> '157'.
@@ -64,14 +65,21 @@ const roomSwitcher = () => {
   currentRoomId++;
 
   if (currentRoomId >= 157) currentRoomId = 153;
-}
+};
 
 if (isRoomSwitcherEnabled) {
-  setInterval(
-    () => {
-      roomSwitcher();
-    },
-    minRoomSwitcherDelayInMilliseconds,
-    maxRoomSwitcherDelayInMilliseconds
-  );
+  if (minRoomSwitcherDelayInMilliseconds > maxRoomSwitcherDelayInMilliseconds) {
+    console.warn(
+      "Delay mismatch 🔥",
+      "Please set minRoomSwitcherDelayInMilliseconds to a value less than maxRoomSwitcherDelayInMilliseconds"
+    );
+  } else {
+    setInterval(
+      () => {
+        roomSwitcher();
+      },
+      minRoomSwitcherDelayInMilliseconds,
+      maxRoomSwitcherDelayInMilliseconds
+    );
+  }
 }
