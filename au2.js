@@ -6,9 +6,7 @@ const maxRoomSwitcherDelayInMilliseconds = 60000 * 6;
 const isDebugModeEnabled = true;
 const isRoomSwitcherEnabled = true;
 
-var socket = window.socket;
-var onmessage = socket.onmessage;
-var currentRoomId = 153;
+let currentRoomId = 153;
 
 console.info("Startup ⚡️", `Au2 Script v${scriptVersion} initialized`);
 console.info(
@@ -23,24 +21,9 @@ console.info("Startup ⚡️", `Debug mode enabled: ${isDebugModeEnabled}`);
 console.info("Startup ⚡️", `Room switcher enabled: ${isRoomSwitcherEnabled}`);
 
 /*
-The following code will loop through room '153' -> '157'.
-Prints out the next room number to the console and then
-sends /goto <roomId> as a chat message in order to switch to the given room.
-If the roomId exceeds 157, we set it to the initial roomId.
-*/
-function roomSwitcher() {
-  console.info("Switching room 🔀", currentRoomId);
-
-  onChatType(`/goto ${currentRoomId}`);
-  currentRoomId++;
-
-  if (currentRoomId >= 157) currentRoomId = 153;
-}
-
-/*
 The following code will detect whenever WebSocket disconnects.
 */
-socket.onclose = (e) => {
+window.socket.onclose = (e) => {
   console.warn("Disconnected 🔥", e);
 };
 
@@ -50,7 +33,7 @@ If debug mode is enabled (isDebug), we print the incoming message to the Console
 Checks every incoming message for recieved hours, then extracts the current 
 hour and token and recognise said message.
 */
-socket.onmessage = (e) => {
+window.socket.onmessage = (e) => {
   var data = e.data;
   if (isDebugModeEnabled) {
     console.debug("Debug 👷", data);
@@ -62,13 +45,26 @@ socket.onmessage = (e) => {
       token = params[1];
 
     setTimeout(function () {
-      WebSocket.prototype.send.call(socket, "3,time," + token);
+      WebSocket.prototype.send.call(window.socket, "3,time," + token);
       console.info("Received hour 🎉", hour);
     }, Math.floor(Math.random() * 29000) + 1000);
-  } else {
-    onmessage(e);
   }
 };
+
+/*
+The following code will loop through room '153' -> '157'.
+Prints out the next room number to the console and then
+sends /goto <roomId> as a chat message in order to switch to the given room.
+If the roomId exceeds 157, we set it to the initial roomId.
+*/
+const roomSwitcher = () => {
+  console.info("Switching room 🔀", currentRoomId);
+
+  onChatType(`/goto ${currentRoomId}`);
+  currentRoomId++;
+
+  if (currentRoomId >= 157) currentRoomId = 153;
+}
 
 if (isRoomSwitcherEnabled) {
   setInterval(
